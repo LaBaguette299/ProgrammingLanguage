@@ -10,7 +10,7 @@ using namespace std;
  * \param y Второй параметр функции.
  * \param z Третий параметр функции.
  */
-double searchA(double x, double y, double z);
+double searchA(const double x, const double y, const double z);
 
 /**
  * \brief Функция расчёта значения "b" по заданной формуле.
@@ -18,7 +18,7 @@ double searchA(double x, double y, double z);
  * \param z Второй параметр функции.
  * \param a Третий параметр функции.
  */
-double searchB(double y, double z, double a);
+double searchB(const double y, const double z, const double a);
 
 /**
  * \brief Точка входа в программу.
@@ -39,12 +39,12 @@ int main()
     return 0;
 }
 
-double searchA(double x, double y, double z)
+double searchA(const double x, const double y, const double z)
 {
-    return exp(-y*z) * sin(x*y-z) - sqrt( abs(y*z+x) );
+    return exp(-y * z) * sin(x * y - z) - sqrt( abs(y * z + x) );
 }
 
-double searchB(double y, double z, double a)
+double searchB(const double y, const double z, const double a)
 {
-    return y * sin(a * pow(z,2) * cos(2.0*z) - 1.0);
+    return y * sin(a * pow(z, 2) * cos(2.0 * z) - 1.0);
 }
