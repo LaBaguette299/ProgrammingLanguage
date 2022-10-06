@@ -9,9 +9,25 @@ using namespace std;
 * \param m Количество строк в массиве
 * \param n Количество столбцов в массиве
 * \param checkAns Выбор пользователем варианта заполнения массива
-* \return array Возвращение преобразованного массива
+* \return array Возвращение заполненного массива
 */
-int **arrFill (size_t m, size_t n, string checkAns);
+int **arrFill (const size_t m, const size_t n, const string checkAns);
+
+/**
+* \brief Функция автоматического заполнения массива "array"
+* \param m Количество строк в массиве
+* \param n Количество столбцов в массиве
+* \return array Возвращение заполненного массива
+*/
+int **arrFillAuto (const size_t m, const size_t n, int **array);
+
+/**
+* \brief Функция ручного заполнения массива "array"
+* \param m Количество строк в массиве
+* \param n Количество столбцов в массиве
+* \return array Возвращение заполненного массива
+*/
+int **arrFillManually (const size_t m, const size_t n, int **array);
 
 /**
 * \brief Функция выводит массив "array" на экран
@@ -20,7 +36,7 @@ int **arrFill (size_t m, size_t n, string checkAns);
 * \*array Заполненный массив
 * \return Возвращает ноль в случае успеха
 */
-int **arrOutput (size_t m, size_t n, int **array);
+int **arrOutput (const size_t m, const size_t n, int **array);
 
 /**
 * \brief Функция меняет местами минимальные элементы столбцов на противоположные
@@ -29,7 +45,7 @@ int **arrOutput (size_t m, size_t n, int **array);
 * \*array Заполненный массив
 * \return Возвращение преобразованного массива
 */
-int **arrActOne (size_t m, size_t n, int **array);
+int **arrActOne (const size_t m, const size_t n, int **array);
 
 /**
 * \brief Функция удаляет все строки массива "array" содержащие максимальные эллементы
@@ -38,7 +54,27 @@ int **arrActOne (size_t m, size_t n, int **array);
 * \*array Заполненный массив
 * \return Возвращение преобразованного массива
 */
-int **arrActTwo (size_t m, size_t n, int **array);
+int **arrActTwo (size_t m, const size_t n, int **array);
+
+/**
+* \brief Функция ищет координату "m" максимальных элементов столбцов
+* \param m Количество строк в массиве
+* \param n Количество столбцов в массиве
+* \*array Заполненный массив
+*\*maxM Массив с координатами
+* \return Возвращение массива с искомыми координатами
+*/
+size_t *arrSearchMaxMCoord (const size_t m, const size_t n, int **array, size_t *maxM);
+
+/**
+* \brief Функция ищет координату "m" минимальных элементов столбцов
+* \param m Количество строк в массиве
+* \param n Количество столбцов в массиве
+* \*array Заполненный массив
+*\*minM Массив с координатами
+* \return Возвращение массива с искомыми координатами
+*/
+size_t *arrSearchMinMCoord (const size_t m, const size_t n, int **array, size_t *minM);
 
 /**
 * \brief Точка входа в программу
@@ -46,9 +82,8 @@ int **arrActTwo (size_t m, size_t n, int **array);
 */
 int main()
 {
-    int numN, **array;
+    int **array;
     size_t m, n;
-    numN = 0;
     
     string checkAns;
     
@@ -70,25 +105,22 @@ int main()
     
     array = arrActTwo(m, n, array);
     
+    delete [] array;
+    
     return 0;
 }
-//
-//
-//
-//
-//
-int **arrActTwo (size_t m, size_t n, int **array)
+
+size_t *arrSearchMaxMCoord (const size_t m, const size_t n, int **array, size_t *maxM)
 {
     int *max = new int [n];
-    size_t *maxM = new size_t [n];
     
-    int numM = 0;
-    for (int numN = 0; numN < n; numN++)
+    size_t numM = 0;
+    for (size_t numN = 0; numN < n; numN++)
     {
         max [numN] = array [0][numN];
         if (numM < m)
         {
-            for (int numM = 0; numM < m; numM++)
+            for (size_t numM = 0; numM < m; numM++)
             {
                 if (array [numM][numN] >= max [numN])
                 {
@@ -99,24 +131,57 @@ int **arrActTwo (size_t m, size_t n, int **array)
         }
     }
     
+    return  maxM;
+}
+
+size_t *arrSearchMinMCoord (const size_t m, const size_t n, int **array,  size_t *minM)
+{
+    int *min = new int [n];
+    
+    size_t numM = 0;
+    for (size_t numN = 0; numN < n; numN++)
+    {
+        min [numN] = array [0][numN];
+        if (numM < m)
+        {
+            for (size_t numM = 0; numM < m; numM++)
+            {
+                if (array [numM][numN] <= min [numN])
+                {
+                    min [numN] = array [numM][numN];
+                    minM [numN] = numM;
+                }
+            }
+        }
+    }
+    
+    return  minM;
+}
+
+int **arrActTwo (size_t m, const size_t n, int **array)
+{
+    size_t *maxM = new size_t [n];
+    
+    maxM = arrSearchMaxMCoord(m, n, array, maxM);
+    
     size_t *checkStr = new size_t [m];
 
-    for (int numN = 0; numN < n; numN++)
+    for (size_t numN = 0; numN < n; numN++)
     {
         checkStr [maxM [numN]] = 1;
     }
     
-    for (int numN = 0; numN < n; numN++)
+    for (size_t numN = 0; numN < n; numN++)
     {
         if (m != 0)
-            for (int numM = 0; numM < m; numM++)
+            for (size_t numM = 0; numM < m; numM++)
             {
                 if (maxM [numN] == numM and checkStr [numM] == 1)
                 {
                     int **arrClon = new int* [m - 1];
-                    int numNforArrClon = 0;
+                    size_t numNforArrClon = 0;
                     
-                    for(int numN = 0; numN < m; numN++)
+                    for(size_t numN = 0; numN < m; numN++)
                         if(numN != numM)
                         {
                             arrClon [numNforArrClon] = array [numN];
@@ -138,66 +203,30 @@ int **arrActTwo (size_t m, size_t n, int **array)
 
     return array;
 }
-//
-//
-//
-//
-//
-int **arrActOne (size_t m, size_t n, int **array)
+
+int **arrActOne (const size_t m, const size_t n, int **array)
 {
-    int *min = new int [m];
-    int *max = new int [m];
-    size_t *maxN = new size_t [m], *minN = new size_t [m];
     size_t *maxM = new size_t [n], *minM = new size_t[n];
     
-    int numM = 0;
-    for (int numN = 0; numN < n; numN++)
-    {
-        max [numN] = array [0][numN];
-        min [numN] = array [0][numN];
-        if (numM < m)
-        {
-            for (int numM = 0; numM < m;)
-            {
-                if (abs(array [numM][numN]) >= abs(max [numN]))
-                {
-                    max [numN] = array [numM][numN];
-                    maxN [numN] = numN;
-                    maxM [numN] = numM;
-                }
-                
-                if (abs(array [numM][numN]) <= abs(min [numN]))
-                {
-                    min [numN] = array [numM][numN];
-                    minN [numN] = numN;
-                    minM [numN] = numM;
-                }
-                numM++;
-            }
-        }
-    }
+    maxM = arrSearchMaxMCoord(m, n, array, maxM);
+    minM = arrSearchMinMCoord(m, n, array, minM);
     
-    for (int numN = 0; numN < n; numN++)
+    for (size_t numN = 0; numN < n; numN++)
     {
-        array [maxM [numN]] [maxN [numN]] = min [numN];
-        array [minM [numN]] [minN [numN]] = max [numN];
+        int buf = array [maxM [numN]] [numN];
+        array [maxM [numN]] [numN] = array [minM [numN]] [numN];
+        array [minM [numN]] [numN] = buf;
     }
     
     return array;
 }
-//
-//
-//
-//
-//
-int **arrFill (size_t m, size_t n, string checkAns)
+
+int **arrFill (const size_t m, const size_t n, const string checkAns)
 {
     int **array;
     array = new int* [m];
-    for (int numM = 0; numM < m; numM++)
+    for (size_t numM = 0; numM < m; numM++)
         array [numM] = new int [n];
-    
-    srand(time(NULL));
     
     string ansYes = "Yes";
     string ansyes = "yes";
@@ -205,60 +234,71 @@ int **arrFill (size_t m, size_t n, string checkAns)
     
     if (checkAns == ansYes or checkAns == ansyes)
     {
-        int numN = 0;
-        for (int numM = 0; numM < m;)
-        {
-            if (numN <= n)
-            {
-                for (int numN = 0; numN < n;)
-                {
-                    array [numM][numN] = 100 - rand() %200;
-                    numN++;
-                }
-            }
-            numM++;
-        }
+        array = arrFillAuto (m, n, array);
     }
     
     else
     {
-        int numN = 0;
-        int var;
-        
-        for (int numM = 0; numM < m;)
-        {
-            if (numN <= n)
-            {
-                for (int numN = 0; numN < n;)
-                {
-                    cout << "Элемент " << numM << "." << numN << ": ";
-                    cin >> var;
-                    
-                    array [numM][numN] = var;
-                    numN++;
-                }
-            }
-            numM++;
-        }
+        array = arrFillManually (m, n, array);
     }
     
     return array;
 }
-//
-//
-//
-//
-//
-int **arrOutput (size_t m, size_t n, int **array)
+
+int **arrFillAuto (const size_t m, const size_t n, int **array)
 {
-    int numN = 0;
+    srand(time(NULL));
+    
+    size_t numN = 0;
+    for (size_t numM = 0; numM < m;)
+    {
+        if (numN <= n)
+        {
+            for (size_t numN = 0; numN < n;)
+            {
+                array [numM][numN] = 100 - rand() %200;
+                numN++;
+            }
+        }
+        numM++;
+    }
+    return array;
+}
+
+int **arrFillManually (const size_t m, const size_t n, int **array)
+{
+    size_t numN = 0;
+    int var;
+    
+    for (size_t numM = 0; numM < m;)
+    {
+        if (numN <= n)
+        {
+            for (size_t numN = 0; numN < n;)
+            {
+                cout << "Элемент " << numM << "." << numN << ": ";
+                cin >> var;
+                
+                array [numM][numN] = var;
+                numN++;
+            }
+        }
+        numM++;
+    }
+    
+    return array;
+}
+
+int **arrOutput (const size_t m, const size_t n, int **array)
+{
+    size_t numN = 0;
     if (m != 0)
-        for (int numM = 0; numM < m;)
+        for (size_t numM = 0; numM < m;)
         {
             cout << endl;
             if (numN <= n)
             {
-                for (int numN = 0; numN < n;)
+                for (size_t numN = 0; numN < n;)
                 {
                     cout << array [numM][numN] << "; ";
                     numN++;
