@@ -19,10 +19,9 @@ enum class ansv
 /**
 * \brief Функция удаления массива "array"
 * \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
 * \param array Заполненный массив
 */
-int **deletingArray (const size_t m, const size_t n, int **array);
+int **deletingArray (const size_t m, int **array);
 
 /**
 * \brief Функция заполнения массива "array"
@@ -92,10 +91,9 @@ size_t countingDeletedRows (const size_t m, const size_t n, size_t *maxM);
 * \param m Количество строк в массиве
 * \param n Количество столбцов в массиве
 * \param array Заполненный массив
-* \param maxM Массив с координатами максимальных элементов столбцов
 * \return Возвращение массива с искомыми координатами
 */
-size_t *arrSearchMaxMCoord (const size_t m, const size_t n, int **array, size_t *maxM);
+size_t *arrSearchMaxMCoord (const size_t m, const size_t n, int **array);
 
 /**
 * \brief Функция ищет координату "m" минимальных по модулю элементов столбцов
@@ -156,13 +154,16 @@ int main()
     arrayOutput = toString (m, n, array);
     cout << arrayOutput;
     
-    deletingArray(m, n, array);
+    if (array != NULL)
+        array = deletingArray(m, array);
     
     return 0;
 }
 
-size_t *arrSearchMaxMCoord (const size_t m, const size_t n, int **array, size_t *maxM)
+size_t *arrSearchMaxMCoord (const size_t m, const size_t n, int **array)
 {
+    size_t *maxM = new size_t [n];
+    
     int *max = new int [n];
     
     size_t numM = 0;
@@ -212,13 +213,17 @@ size_t *arrSearchMinMCoord (const size_t m, const size_t n, int **array,  size_t
 int **actTwo (size_t m, const size_t n, int **array)
 {
     size_t *maxM = new size_t [n];
-
-    maxM = arrSearchMaxMCoord(m, n, array, maxM);
+    bool checkingForDeletingRows[m];
     
+    maxM = arrSearchMaxMCoord(m, n, array);
+    
+    for (size_t num = 0; num < n; num++)
+        checkingForDeletingRows [maxM [num]] = true;
+
     size_t numberOfDeletedRows = countingDeletedRows (m, n, maxM);
     
     if (numberOfDeletedRows == m)
-        deletingArray(m, n, array);
+        array = deletingArray(m, array);
     
     else
     {
@@ -235,7 +240,7 @@ int **actTwo (size_t m, const size_t n, int **array)
         {
             for (size_t numM = 0; numM < m; numM++)
             {
-                if (maxM [numN] != numM)
+                if (checkingForDeletingRows[numM] != true)
                 {
                     arrayClon [roadForArrayClon][numN] = array [numM][numN];
                     roadForArrayClon++;
@@ -243,9 +248,10 @@ int **actTwo (size_t m, const size_t n, int **array)
             }
             roadForArrayClon = 0;
         }
-        deletingArray(m, n, array);
+        
+        array = deletingArray(m, array);
         array = arrayClon;
-        deletingArray(m, n, arrayClon);
+        arrayClon = deletingArray(m - numberOfDeletedRows, arrayClon);
     }
 
     return array;
@@ -277,7 +283,7 @@ int **actOne (const size_t m, const size_t n, int **array)
     size_t *maxM = new size_t [n];
     size_t *minM = new size_t[n];
     
-    maxM = arrSearchMaxMCoord(m, n, array, maxM);
+    maxM = arrSearchMaxMCoord(m, n, array);
     minM = arrSearchMinMCoord(m, n, array, minM);
     
     for (size_t numN = 0; numN < n; numN++)
@@ -359,9 +365,9 @@ int **manualFilling (const size_t m, const size_t n, int **array)
 string toString (const size_t m, const size_t n, int **array)
 {
     stringstream buffer;
-    string deletedArray = "Массив удалён.";
+    string deletedArray = "Массив удалён. \n";
 
-    if (array != nullptr)
+    if (array != NULL)
     {
         for (size_t numM = 0; numM < m; numM++)
             {
@@ -377,13 +383,17 @@ string toString (const size_t m, const size_t n, int **array)
         return deletedArray;
 }
 
-int **deletingArray (const size_t m, const size_t n, int **array)
+int **deletingArray (const size_t m, int **array)
 {
-    if (array != nullptr)
+    for (size_t index = 0; index < m; index++)
     {
-        delete []array;
-        array = nullptr;
+        if (array[index] != nullptr)
+        {
+            delete[] array[index];
+            array[index] = nullptr;
+        }
     }
-
-    return array;
+    
+    delete[] array;
+    return array = nullptr;
 }
