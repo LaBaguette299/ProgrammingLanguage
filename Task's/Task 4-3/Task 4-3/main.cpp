@@ -148,14 +148,17 @@ int main()
     arrayOutput = toString (m, n, array);
     cout << arrayOutput;
     
+    size_t *maxM = new size_t [n];
+    maxM = arrSearchMaxMCoord(m, n, array);
+    size_t numberOfDeletedRows = countingDeletedRows (m, n, maxM);
     array = actTwo (m, n, array);
-    
+
     cout << endl << "Массив по итогу второго задания: \n";
-    arrayOutput = toString (m, n, array);
+    arrayOutput = toString (m - numberOfDeletedRows, n, array);
     cout << arrayOutput;
     
     if (array != NULL)
-        array = deletingArray(m, array);
+        array = deletingArray(m - numberOfDeletedRows, array);
     
     return 0;
 }
@@ -236,22 +239,20 @@ int **actTwo (size_t m, const size_t n, int **array)
         
         size_t roadForArrayClon = 0;
         
-        for (size_t numN = 0; numN < n; numN++)
+        for (size_t numM = 0; numM < m; numM++)
         {
-            for (size_t numM = 0; numM < m; numM++)
+            if (checkingForDeletingRows[numM] != true)
             {
-                if (checkingForDeletingRows[numM] != true)
+                for (size_t numN = 0; numN < n; numN++)
                 {
                     arrayClon [roadForArrayClon][numN] = array [numM][numN];
-                    roadForArrayClon++;
                 }
+                roadForArrayClon++;
             }
-            roadForArrayClon = 0;
         }
         
         array = deletingArray(m, array);
         array = arrayClon;
-        arrayClon = deletingArray(m - numberOfDeletedRows, arrayClon);
     }
 
     return array;
@@ -262,9 +263,9 @@ size_t countingDeletedRows (const size_t m, const size_t n, size_t *maxM)
     size_t numberOfDeletedRows = 0;
     bool checkingForRepetition = true;
     
-    for (int row = 0; row < m; row++)
+    for (size_t row = 0; row < m; row++)
     {
-        for (int colum = 0; colum < n; colum++)
+        for (size_t colum = 0; colum < n; colum++)
         {
             if (maxM [colum] == row and checkingForRepetition == true)
             {
@@ -281,7 +282,7 @@ size_t countingDeletedRows (const size_t m, const size_t n, size_t *maxM)
 int **actOne (const size_t m, const size_t n, int **array)
 {
     size_t *maxM = new size_t [n];
-    size_t *minM = new size_t[n];
+    size_t *minM = new size_t [n];
     
     maxM = arrSearchMaxMCoord(m, n, array);
     minM = arrSearchMinMCoord(m, n, array, minM);
@@ -383,17 +384,17 @@ string toString (const size_t m, const size_t n, int **array)
         return deletedArray;
 }
 
-int **deletingArray (const size_t m, int **array)
+int **deletingArray (const size_t m, int **arr)
 {
     for (size_t index = 0; index < m; index++)
     {
-        if (array[index] != nullptr)
+        if (arr[index] != NULL)
         {
-            delete[] array[index];
-            array[index] = nullptr;
+            delete[] arr[index];
+            arr[index] = nullptr;
         }
     }
     
-    delete[] array;
-    return array = nullptr;
+    delete[] arr;
+    return arr = nullptr;
 }
