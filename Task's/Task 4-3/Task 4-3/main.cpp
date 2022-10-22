@@ -1,394 +1,342 @@
+#include <iostream>
 #define _USE_MATH_DEFINES // for C++
 #include <cmath>
 #include <sstream>
-#include <iostream>
-
-using namespace std;
+#include <algorithm>
+#include <array>
+#include <random>
+#include <ctime>
 
 /**
 * \brief Возможные варианты ответа пользователя
 * \yes Если пользователь ввёл "1"
 * \no Если пользователь ввёл "2"
  */
-enum class ansv
+enum class answer
 {
     yes = 1,
     no = 2
 };
 
 /**
-* \brief Функция удаления массива "array"
-* \param m Количество строк в массиве
-* \param array Заполненный массив
-*/
-int **deletingArray (const size_t m, int **array);
+ * \brief Проверка корректности ввода размерности массива
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \return true Если ввод корректен
+ * \return false Если ввод некорректен
+ */
+bool ceckingInput(const int rows, const int colums);
 
 /**
-* \brief Функция заполнения массива "array"
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param checkAns Выбор пользователем варианта заполнения массива
-* \return array Возвращение заполненного массива
-*/
-int **fillingTheArray (const size_t m, const size_t n, const int checkAns);
+ * \brief Создание массива array
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ */
+int** creatingArray(const size_t rows, const size_t colums);
 
 /**
-* \brief Функция автоматического заполнения массива "array"
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param array Заполненный массив
-* \return array Возвращение заполненного массива
-*/
-int **autoFilling (const size_t m, const size_t n, int **array);
+ * \brief Ручное заполнение массива
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \return array Возвращение заполненного массива
+ */
+int** manualFillingArray(const size_t rows, const size_t colums);
 
 /**
-* \brief Функция ручного заполнения массива "array"
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param array Заполненный массив
-* \return array Возвращение заполненного массива
-*/
-int **manualFilling (const size_t m, const size_t n, int **array);
+ * \brief Автоматическое заполнение массива
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \return array Возвращение заполненного массива
+ */
+int** autoFillingArray(const size_t rows, const size_t colums);
 
 /**
-* \brief Функция выводит массив "array" на экран
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param array Заполненный массив
-* \return Возвращает ноль в случае успеха
-*/
-string toString (const size_t m, const size_t n, int **array);
+ * \brief Функция преобразующая array в string для удобства вывода
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \param array Массив
+ * \return buffer.str() Возвращение string с массивом
+ * \return deletedArray Возвращает сообщение о том, что масств удалён
+ */
+std::string toString(const size_t rows, const size_t colums, int** array);
 
 /**
-* \brief Функция меняет местами минимальные элементы столбцов на противоположные
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param array Заполненный массив
-* \return Возвращение преобразованного массива
-*/
-int **actOne (const size_t m, const size_t n, int **array);
+ * \brief Функция выполняет задание 1 (поменять местами минимальный и максимальный по модулю элементы столбцов)
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \param array Массив
+ * \return array Возвращает изменёный массив
+ */
+int** actOne(const size_t rows, const size_t colums, int** array);
 
 /**
-* \brief Функция удаляет все строки массива "array" содержащие максимальные эллементы
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param array Заполненный массив
-* \return Возвращение преобразованного массива
-*/
-int **actTwo (size_t m, const size_t n, int **array);
+ * \brief Функция ищет максимальный по модулю элемент каждого столбца
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \param array Массив
+ * \return max Возвращает список максимальных элементов
+ */
+int* findAbsMaxElements(const size_t rows, const size_t colums, int** array);
 
 /**
-* \brief Функция ищет количство строк которые надо удалить
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param maxM Массив с координатами максимальных элементов столбцов
-* \return Возвращение количества удаляемых строк
-*/
-size_t countingDeletedRows (const size_t m, const size_t n, size_t *maxM);
+ * \brief Функция ищет минимальный по модулю элемент каждого столбца
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \param array Массив
+ * \return min Возвращает список минимальных элементов
+ */
+int* findAbsMinElements(const size_t rows, const size_t colums, int** array);
 
 /**
-* \brief Функция ищет координату "m" максимальных элементов столбцов
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param array Заполненный массив
-* \return Возвращение массива с искомыми координатами
-*/
-size_t *arrSearchMaxMCoord (const size_t m, const size_t n, int **array);
+ * \brief Функция удаляет массив
+ * \param rows Количество строк
+ * \param arr Удаляемый массив
+ * \return Возвращает удалённый массив
+ */
+int **deletingArray(const size_t rows, int **arr);
 
 /**
-* \brief Функция ищет координату "m" минимальных по модулю элементов столбцов
-* \param m Количество строк в массиве
-* \param n Количество столбцов в массиве
-* \param array Заполненный массив
-* \param minM Массив с координатами минимальных элементов столбцов
-* \return Возвращение массива с искомыми координатами
-*/
-size_t *arrSearchMinMCoord (const size_t m, const size_t n, int **array, size_t *minM);
+ * \brief Функция выполняет задание 2 (удалить строки содержащие максимальные элементы столбцов)
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \param array Массив
+ * \return array Возвращает изменёный массив
+ */
+int** actTwo(const size_t rows, const size_t colums, int** array);
 
 /**
-* \brief Точка входа в программу
-* \return Возвращает ноль в случае успеха или один если некорректный ввод
-*/
+ * \brief Функция ищет строки для удаления
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \param array Массив
+ * \return rowsToDell Возвращает список строк для удаления
+ */
+bool* findRowsToDell(const size_t rows, const size_t colums, int** array);
+
+/**
+ * \brief Функция ищет максимальный элемент каждого столбца
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \param array Массив
+ * \return max Возвращает список максимальных элементов
+ */
+int* findMaxElements(const size_t rows, const size_t colums, int** array);
+
+/**
+ * \brief Функция ищет количество удаляемых строк
+ * \param rows Количество строк
+ * \param colums Количество столбцов
+ * \param array Массив
+ * \return max Возвращает список максимальных элементов
+ */
+size_t findNumOfDelletedRows(const size_t rows, const size_t colums, int** array);
+
+/**
+ * \brief Точка входа в программу
+ * \return 0 Возвращает ноль в случае успеха
+ * \return 1 Возвращает один если некорректный ввод размерности массива
+ */
 int main()
 {
-    int **array;
-    int sizeString = -1;
-    int sizeColumn = -1;
-    int checkAns;
-    size_t m, n;
-    string arrayOutput;
-
-    cout << "Введите размерность массива: (Кол-во строк <пробел> Кол-во столбцов) ";
-    cin >> sizeString >> sizeColumn;
+    std::cout << "Введите размерность массива:\n Количество строк: ";
+    int checkRows;
+    std::cin >> checkRows;
     
-    if (sizeString < 0 or sizeColumn < 0)
+    std::cout << " Количество столбцов: ";
+    int checkColums;
+    std::cin >> checkColums;
+    
+    if (!ceckingInput(checkRows, checkColums))
     {
-        cout << "Ошибка! Некорректный ввод! \n";
+        std::cout << "Некорректный размер!\n";
         return 1;
     }
     
+    const size_t rows = checkRows;
+    const size_t colums = checkColums;
+    
+    std::cout << "Выберите способ заполнения массива:\n 1-Ручное\n 2-Автоматическое\n ";
+    int ans;
+    std::cin >> ans;
+        
+    answer castedAns = static_cast<answer>(ans);
+    
+    int** array;
+        
+    if (castedAns == answer::yes)
+    {
+        array = manualFillingArray(rows, colums);
+        std::cout << toString(rows, colums, array);
+    }
     else
     {
-        m = sizeString;
-        n = sizeColumn;
+        array = autoFillingArray(rows, colums);
+        std::cout << "Массив:\n" << toString(rows, colums, array) << std::endl;
     }
     
-    cout << "Заполнить массив автоматически? \n 1 - да \n 2 - нет \n";
-    cin >> checkAns;
+    array = actOne(rows, colums, array);
+    std::cout << "Массив по итогу первого задания:\n" << toString(rows, colums, array) << std::endl;
     
-    array = fillingTheArray (m, n, checkAns);
+    size_t numOfDelletedRows = findNumOfDelletedRows(rows, colums, array);
     
-    cout << endl << "Массив: \n";
-    arrayOutput = toString (m, n, array);
-    cout << arrayOutput;
+    array = actTwo(rows, colums, array);
+    std::cout << "Массив по итогу второго задания:\n" << toString(rows - numOfDelletedRows, colums, array) << std::endl;
     
-    array = actOne (m, n, array);
-    
-    cout << endl << "Массив по итогу первого задания: \n";
-    arrayOutput = toString (m, n, array);
-    cout << arrayOutput;
-    
-    size_t *maxM = new size_t [n];
-    maxM = arrSearchMaxMCoord(m, n, array);
-    size_t numberOfDeletedRows = countingDeletedRows (m, n, maxM);
-    array = actTwo (m, n, array);
-
-    cout << endl << "Массив по итогу второго задания: \n";
-    arrayOutput = toString (m - numberOfDeletedRows, n, array);
-    cout << arrayOutput;
-    
-    if (array != NULL)
-        array = deletingArray(m - numberOfDeletedRows, array);
+    if(array != nullptr)
+    {
+        array = deletingArray(rows - numOfDelletedRows, array);
+    }
     
     return 0;
 }
 
-size_t *arrSearchMaxMCoord (const size_t m, const size_t n, int **array)
+bool ceckingInput(const int rows, const int colums)
 {
-    size_t *maxM = new size_t [n];
-    
-    int *max = new int [n];
-    
-    size_t numM = 0;
-    for (size_t numN = 0; numN < n; numN++)
+    if (rows > 0 && colums > 0)
     {
-        max [numN] = array [0][numN];
-        if (numM < m)
-        {
-            for (size_t numM = 0; numM < m; numM++)
-            {
-                if (array [numM][numN] >= max [numN])
-                {
-                    max [numN] = array [numM][numN];
-                    maxM [numN] = numM;
-                }
-            }
-        }
+        return true;
     }
-    
-    return  maxM;
-}
-
-size_t *arrSearchMinMCoord (const size_t m, const size_t n, int **array,  size_t *minM)
-{
-    int *min = new int [n];
-    
-    size_t numM = 0;
-    for (size_t numN = 0; numN < n; numN++)
-    {
-        min [numN] = array [0][numN];
-        if (numM < m)
-        {
-            for (size_t numM = 0; numM < m; numM++)
-            {
-                if (abs (array [numM][numN]) <= abs (min [numN]))
-                {
-                    min [numN] = array [numM][numN];
-                    minM [numN] = numM;
-                }
-            }
-        }
-    }
-    
-    return  minM;
-}
-
-int **actTwo (size_t m, const size_t n, int **array)
-{
-    size_t *maxM = new size_t [n];
-    bool checkingForDeletingRows[m];
-    
-    maxM = arrSearchMaxMCoord(m, n, array);
-    
-    for (size_t num = 0; num < n; num++)
-        checkingForDeletingRows [maxM [num]] = true;
-
-    size_t numberOfDeletedRows = countingDeletedRows (m, n, maxM);
-    
-    if (numberOfDeletedRows == m)
-        array = deletingArray(m, array);
-    
     else
     {
-        int **arrayClon;
-        
-        arrayClon = new int* [m - numberOfDeletedRows];
-        
-        for (size_t numM = 0; numM < m - numberOfDeletedRows; numM++)
-            arrayClon [numM] = new int [n];
-        
-        size_t roadForArrayClon = 0;
-        
-        for (size_t numM = 0; numM < m; numM++)
+        return false;
+    }
+}
+
+int** creatingArray(const size_t rows, const size_t colums)
+{
+    int** array = new int* [rows];
+    for (size_t numRows = 0; numRows < rows; numRows++)
+        array [numRows] = new int [colums];
+    return array;
+}
+
+int** manualFillingArray(const size_t rows, const size_t colums)
+{
+    int** array = creatingArray(rows, colums);
+    
+    for(size_t numRows = 0; numRows < rows; numRows++)
+    {
+        for(size_t numColums = 0; numColums < colums; numColums++)
         {
-            if (checkingForDeletingRows[numM] != true)
-            {
-                for (size_t numN = 0; numN < n; numN++)
-                {
-                    arrayClon [roadForArrayClon][numN] = array [numM][numN];
-                }
-                roadForArrayClon++;
-            }
+            std::cout << "Элемент " << numRows + 1 << "." << numColums + 1 << ": ";
+            std::cin >> array[numRows][numColums];
         }
-        
-        array = deletingArray(m, array);
-        array = arrayClon;
     }
-
+    
     return array;
 }
 
-size_t countingDeletedRows (const size_t m, const size_t n, size_t *maxM)
+int** autoFillingArray(const size_t rows, const size_t colums)
 {
-    size_t numberOfDeletedRows = 0;
-    bool checkingForRepetition = true;
+    int** array = creatingArray(rows, colums);
     
-    for (size_t row = 0; row < m; row++)
+    srand(time(0));
+    
+    for(size_t numRows = 0; numRows < rows; numRows++)
     {
-        for (size_t colum = 0; colum < n; colum++)
+        for(size_t numColums = 0; numColums < colums; numColums++)
         {
-            if (maxM [colum] == row and checkingForRepetition == true)
-            {
-                numberOfDeletedRows++;
-                checkingForRepetition = false;
-            }
+            array[numRows][numColums] = 100 - rand() % 200;
         }
-        checkingForRepetition = true;
-    }
-    
-    return numberOfDeletedRows;
-}
-
-int **actOne (const size_t m, const size_t n, int **array)
-{
-    size_t *maxM = new size_t [n];
-    size_t *minM = new size_t [n];
-    
-    maxM = arrSearchMaxMCoord(m, n, array);
-    minM = arrSearchMinMCoord(m, n, array, minM);
-    
-    for (size_t numN = 0; numN < n; numN++)
-    {
-        int buf = array [maxM [numN]] [numN];
-        array [maxM [numN]] [numN] = array [minM [numN]] [numN];
-        array [minM [numN]] [numN] = buf;
     }
     
     return array;
 }
 
-int **fillingTheArray (const size_t m, const size_t n, const int checkAns)
+std::string toString(const size_t rows, const size_t colums, int** array)
 {
-    int **array;
-    array = new int* [m];
-    for (size_t numM = 0; numM < m; numM++)
-        array [numM] = new int [n];
-    
-    int ansYes = 1;
-    
-    if (checkAns == ansYes)
-    {
-        array = autoFilling (m, n, array);
-    }
-    
-    else
-    {
-        array = manualFilling (m, n, array);
-    }
-    
-    return array;
-}
+    std::stringstream buffer;
+    std::string deletedArray = "Массив удалён. \n";
 
-int **autoFilling (const size_t m, const size_t n, int **array)
-{
-    srand(time(NULL));
-    
-    size_t numN = 0;
-    for (size_t numM = 0; numM < m;)
+    if (array != nullptr)
     {
-        if (numN <= n)
+        for (size_t numRows = 0; numRows < rows; numRows++)
         {
-            for (size_t numN = 0; numN < n;)
+            for (size_t numColums = 0; numColums < colums; numColums++)
             {
-                array [numM][numN] = 100 - rand() %200;
-                numN++;
+                buffer << array [numRows][numColums] << "; ";
             }
+            buffer << "\n";
         }
-        numM++;
-    }
-    return array;
-}
-
-int **manualFilling (const size_t m, const size_t n, int **array)
-{
-    size_t numN = 0;
-    int var;
-    
-    for (size_t numM = 0; numM < m;)
-    {
-        if (numN <= n)
-        {
-            for (size_t numN = 0; numN < n;)
-            {
-                cout << "Элемент " << numM << "." << numN << ": ";
-                cin >> var;
-                
-                array [numM][numN] = var;
-                numN++;
-            }
-        }
-        numM++;
-    }
-    
-    return array;
-}
-
-string toString (const size_t m, const size_t n, int **array)
-{
-    stringstream buffer;
-    string deletedArray = "Массив удалён. \n";
-
-    if (array != NULL)
-    {
-        for (size_t numM = 0; numM < m; numM++)
-            {
-                for (size_t numN = 0; numN < n; numN++)
-                {
-                    buffer << array [numM][numN] << "; ";
-                }
-                buffer << "\n";
-            }
         return buffer.str();
     }
     else
         return deletedArray;
 }
 
-int **deletingArray (const size_t m, int **arr)
+int** actOne(const size_t rows, const size_t colums, int** array)
 {
-    for (size_t index = 0; index < m; index++)
+    int* max = findAbsMaxElements(rows, colums, array);
+    int* min = findAbsMinElements(rows, colums, array);
+    size_t buffOfNumRowsForMin;
+    size_t buffOfNumRowsForMax;
+    
+    for(size_t numColums = 0; numColums < colums; numColums++)
     {
-        if (arr[index] != NULL)
+        for(size_t numRows = 0; numRows < rows; numRows++)
+        {
+            if(array[numRows][numColums] == min[numColums])
+            {
+                buffOfNumRowsForMin = numRows;
+            }
+            
+            if(array[numRows][numColums] == max[numColums])
+            {
+                buffOfNumRowsForMax = numRows;
+            }
+        }
+        array[buffOfNumRowsForMax][numColums] = min[numColums];
+        array[buffOfNumRowsForMin][numColums] = max[numColums];
+    }
+    
+    return array;
+}
+
+int* findAbsMaxElements(const size_t rows, const size_t colums, int** array)
+{
+    int* max = new int [colums];
+
+    for(size_t numColums = 0; numColums < colums; numColums++)
+    {
+        int buffMax = array[0][numColums];
+        for(size_t numRows = 0; numRows < rows; numRows++)
+        {
+            if(abs(buffMax) < abs(array[numRows][numColums]))
+            {
+                buffMax = array[numRows][numColums];
+            }
+        }
+        max[numColums] = buffMax;
+    }
+    
+    return max;
+}
+
+int* findAbsMinElements(const size_t rows, const size_t colums, int** array)
+{
+    int* min = new int [colums];
+
+    for(size_t numColums = 0; numColums < colums; numColums++)
+    {
+        int buffMin = array[0][numColums];
+        for(size_t numRows = 0; numRows < rows; numRows++)
+        {
+            if(abs(buffMin) > abs(array[numRows][numColums]))
+            {
+                buffMin = array[numRows][numColums];
+            }
+        }
+        min[numColums] = buffMin;
+    }
+    
+    return min;
+}
+
+int **deletingArray(const size_t rows, int **arr)
+{
+    for (size_t index = 0; index < rows; index++)
+    {
+        if (arr[index] != nullptr)
         {
             delete[] arr[index];
             arr[index] = nullptr;
@@ -397,4 +345,89 @@ int **deletingArray (const size_t m, int **arr)
     
     delete[] arr;
     return arr = nullptr;
+}
+
+int** actTwo(const size_t rows, const size_t colums, int** array)
+{
+    bool* rowsToDell = findRowsToDell(rows, colums, array);
+    size_t numOfDelletedRows = findNumOfDelletedRows(rows, colums, array);
+    
+    if(rows - numOfDelletedRows == 0)
+    {
+        return nullptr;
+    }
+    
+    int** arrayClon = creatingArray(rows - numOfDelletedRows, colums);
+    
+    size_t numRowsForArrayClon = 0;
+    
+    for(size_t numRows = 0; numRows < rows; numRows++)
+    {
+        if(!rowsToDell[numRows])
+        {
+            for(size_t numColums = 0; numColums < colums; numColums++)
+            {
+                arrayClon[numRowsForArrayClon][numColums] = array[numRows][numColums];
+            }
+            numRowsForArrayClon++;
+        }
+    }
+    
+    return arrayClon;
+}
+
+bool* findRowsToDell(const size_t rows, const size_t colums, int** array)
+{
+    bool* rowsToDell = new bool [rows];
+    int* max = findMaxElements(rows, colums, array);
+    
+    for(size_t numColums = 0; numColums < colums; numColums++)
+    {
+        for(size_t numRows = 0; numRows < rows; numRows++)
+        {
+            if(array[numRows][numColums] == max[numColums])
+            {
+                rowsToDell[numRows] = true;
+            }
+        }
+    }
+    
+    return rowsToDell;
+}
+
+int* findMaxElements(const size_t rows, const size_t colums, int** array)
+{
+    int* max = new int [colums];
+
+    for(size_t numColums = 0; numColums < colums; numColums++)
+    {
+        int buffMax = array[0][numColums];
+        for(size_t numRows = 0; numRows < rows; numRows++)
+        {
+            if(buffMax < array[numRows][numColums])
+            {
+                buffMax = array[numRows][numColums];
+            }
+        }
+        max[numColums] = buffMax;
+    }
+    
+    return max;
+}
+
+size_t findNumOfDelletedRows(const size_t rows, const size_t colums, int** array)
+{
+    size_t numOfDelletedRows = 0;
+    
+    bool* rowsToDell = findRowsToDell(rows, colums, array);
+    
+    for(size_t index = 0; index < rows; index++)
+    {
+        if(rowsToDell[index])
+        {
+            numOfDelletedRows++;
+        }
+    }
+    
+    return numOfDelletedRows;
 }
