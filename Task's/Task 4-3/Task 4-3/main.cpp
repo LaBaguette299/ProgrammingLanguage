@@ -14,6 +14,7 @@
  */
 enum class answer
 {
+    unknown = 0,
     yes = 1,
     no = 2
 };
@@ -40,7 +41,7 @@ int** creatingArray(const size_t rows, const size_t colums);
  * \param colums Количество столбцов
  * \return array Возвращение заполненного массива
  */
-int** manualFillingArray(const size_t rows, const size_t colums);
+void manualFillingArray(int** array, const size_t rows, const size_t colums);
 
 /**
  * \brief Автоматическое заполнение массива
@@ -48,7 +49,7 @@ int** manualFillingArray(const size_t rows, const size_t colums);
  * \param colums Количество столбцов
  * \return array Возвращение заполненного массива
  */
-int** autoFillingArray(const size_t rows, const size_t colums);
+void autoFillingArray(int** array, const size_t rows, const size_t colums);
 
 /**
  * \brief Функция преобразующая array в string для удобства вывода
@@ -65,9 +66,8 @@ std::string toString(const size_t rows, const size_t colums, int** array);
  * \param rows Количество строк
  * \param colums Количество столбцов
  * \param array Массив
- * \return array Возвращает изменёный массив
  */
-int** actOne(const size_t rows, const size_t colums, int** array);
+void actOne(const size_t rows, const size_t colums, int **array); // !
 
 /**
  * \brief Функция ищет максимальный по модулю элемент каждого столбца
@@ -91,18 +91,16 @@ int* findAbsMinElements(const size_t rows, const size_t colums, int** array);
  * \brief Функция удаляет массив
  * \param rows Количество строк
  * \param arr Удаляемый массив
- * \return Возвращает удалённый массив
  */
-int **deletingArray(const size_t rows, int **arr);
+void deletingArray(const size_t rows, int **&arr);
 
 /**
  * \brief Функция выполняет задание 2 (удалить строки содержащие максимальные элементы столбцов)
  * \param rows Количество строк
  * \param colums Количество столбцов
  * \param array Массив
- * \return array Возвращает изменёный массив
  */
-int** actTwo(const size_t rows, const size_t colums, int** array);
+void actTwo(const size_t rows, const size_t colums, int **&array);
 
 /**
  * \brief Функция ищет строки для удаления
@@ -148,8 +146,7 @@ int main()
     
     if (!ceckingInput(checkRows, checkColums))
     {
-        std::cout << "Некорректный размер!\n";
-        return 1;
+        throw std::range_error("Некорректный размер!");
     }
     
     const size_t rows = checkRows;
@@ -161,30 +158,31 @@ int main()
         
     answer castedAns = static_cast<answer>(ans);
     
-    int** array;
+    int** array = creatingArray(rows, colums);
         
     if (castedAns == answer::yes)
     {
-        array = manualFillingArray(rows, colums);
-        std::cout << toString(rows, colums, array);
+        manualFillingArray(array, rows, colums);
     }
-    else
+    else if (castedAns == answer::no)
     {
-        array = autoFillingArray(rows, colums);
-        std::cout << "Массив:\n" << toString(rows, colums, array) << std::endl;
+        autoFillingArray(array, rows, colums);
     }
+    else throw std::range_error("Выбор некорректен!");
     
-    array = actOne(rows, colums, array);
+    std::cout << "Массив:\n" << toString(rows, colums, array) << std::endl;
+    
+    actOne(rows, colums, array);
     std::cout << "Массив по итогу первого задания:\n" << toString(rows, colums, array) << std::endl;
     
     size_t numOfDelletedRows = findNumOfDelletedRows(rows, colums, array);
     
-    array = actTwo(rows, colums, array);
+    actTwo(rows, colums, array);
     std::cout << "Массив по итогу второго задания:\n" << toString(rows - numOfDelletedRows, colums, array) << std::endl;
     
     if(array != nullptr)
     {
-        array = deletingArray(rows - numOfDelletedRows, array);
+        deletingArray(rows - numOfDelletedRows, array);
     }
     
     return 0;
@@ -192,14 +190,7 @@ int main()
 
 bool ceckingInput(const int rows, const int colums)
 {
-    if (rows > 0 && colums > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return rows > 0 && colums > 0;
 }
 
 int** creatingArray(const size_t rows, const size_t colums)
@@ -210,10 +201,8 @@ int** creatingArray(const size_t rows, const size_t colums)
     return array;
 }
 
-int** manualFillingArray(const size_t rows, const size_t colums)
+void manualFillingArray(int** array, const size_t rows, const size_t colums)
 {
-    int** array = creatingArray(rows, colums);
-    
     for(size_t numRows = 0; numRows < rows; numRows++)
     {
         for(size_t numColums = 0; numColums < colums; numColums++)
@@ -222,25 +211,21 @@ int** manualFillingArray(const size_t rows, const size_t colums)
             std::cin >> array[numRows][numColums];
         }
     }
-    
-    return array;
 }
 
-int** autoFillingArray(const size_t rows, const size_t colums)
+void autoFillingArray(int** array, const size_t rows, const size_t colums)
 {
-    int** array = creatingArray(rows, colums);
-    
-    srand(time(0));
-    
+    std::random_device rd;
+    std::mt19937_64 mt_rand(rd());
+    std::uniform_int_distribution<int> dist(-100, 100);
+        
     for(size_t numRows = 0; numRows < rows; numRows++)
     {
         for(size_t numColums = 0; numColums < colums; numColums++)
         {
-            array[numRows][numColums] = 100 - rand() % 200;
+            array[numRows][numColums] = dist(mt_rand);
         }
     }
-    
-    return array;
 }
 
 std::string toString(const size_t rows, const size_t colums, int** array)
@@ -264,7 +249,7 @@ std::string toString(const size_t rows, const size_t colums, int** array)
         return deletedArray;
 }
 
-int** actOne(const size_t rows, const size_t colums, int** array)
+void actOne(const size_t rows, const size_t colums, int **array)
 {
     int* max = findAbsMaxElements(rows, colums, array);
     int* min = findAbsMinElements(rows, colums, array);
@@ -288,8 +273,6 @@ int** actOne(const size_t rows, const size_t colums, int** array)
         array[buffOfNumRowsForMax][numColums] = min[numColums];
         array[buffOfNumRowsForMin][numColums] = max[numColums];
     }
-    
-    return array;
 }
 
 int* findAbsMaxElements(const size_t rows, const size_t colums, int** array)
@@ -332,7 +315,7 @@ int* findAbsMinElements(const size_t rows, const size_t colums, int** array)
     return min;
 }
 
-int **deletingArray(const size_t rows, int **arr)
+void deletingArray(const size_t rows, int **&arr)
 {
     for (size_t index = 0; index < rows; index++)
     {
@@ -344,17 +327,17 @@ int **deletingArray(const size_t rows, int **arr)
     }
     
     delete[] arr;
-    return arr = nullptr;
+    arr = nullptr;
 }
 
-int** actTwo(const size_t rows, const size_t colums, int** array)
+void actTwo(const size_t rows, const size_t colums, int **&array)
 {
     bool* rowsToDell = findRowsToDell(rows, colums, array);
     size_t numOfDelletedRows = findNumOfDelletedRows(rows, colums, array);
     
     if(rows - numOfDelletedRows == 0)
     {
-        return nullptr;
+        return deletingArray(rows, array);
     }
     
     int** arrayClon = creatingArray(rows - numOfDelletedRows, colums);
@@ -373,7 +356,7 @@ int** actTwo(const size_t rows, const size_t colums, int** array)
         }
     }
     
-    return arrayClon;
+    array = arrayClon;
 }
 
 bool* findRowsToDell(const size_t rows, const size_t colums, int** array)
