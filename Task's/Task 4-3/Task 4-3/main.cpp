@@ -1,11 +1,7 @@
 #include <iostream>
-#define _USE_MATH_DEFINES // for C++
 #include <cmath>
 #include <sstream>
-#include <algorithm>
-#include <array>
 #include <random>
-#include <ctime>
 
 /**
 * \brief Возможные варианты ответа пользователя
@@ -139,9 +135,9 @@ int main()
     {
         getSize(checkRows);
     }
-    catch (std::out_of_range)
+    catch (std::out_of_range& e)
     {
-        std::cout << "Вы ввели неправильный ответ!\n";
+        std::cout << e.what();
         return 1;
     }
     
@@ -155,9 +151,9 @@ int main()
     {
         getSize(checkColums);
     }
-    catch (std::out_of_range)
+    catch (std::out_of_range& e)
     {
-        std::cout << "Вы ввели неправильный ответ!\n";
+        std::cout << e.what();
         return 1;
     }
     
@@ -193,9 +189,9 @@ int main()
                 return 1;
         }
     }
-    catch (std::out_of_range&)
+    catch (std::out_of_range& e)
     {
-        std::cout << "Вы ввели неправильный ответ!\n";
+        std::cout << e.what();
         return 1;
     }
 
