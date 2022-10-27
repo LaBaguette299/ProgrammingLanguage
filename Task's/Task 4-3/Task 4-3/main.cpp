@@ -14,19 +14,16 @@
  */
 enum class answer
 {
-    unknown = 0,
-    yes = 1,
-    no = 2
+    yes,
+    no
 };
 
 /**
  * \brief Проверка корректности ввода размерности массива
- * \param rows Количество строк
- * \param colums Количество столбцов
- * \return true Если ввод корректен
+ * \param size Размер строки/столбца для проверки на корректность
  * \return false Если ввод некорректен
  */
-bool ceckingInput(const int rows, const int colums);
+size_t getSize(const int size);
 
 /**
  * \brief Создание массива array
@@ -39,7 +36,6 @@ int** creatingArray(const size_t rows, const size_t colums);
  * \brief Ручное заполнение массива
  * \param rows Количество строк
  * \param colums Количество столбцов
- * \return array Возвращение заполненного массива
  */
 void manualFillingArray(int** array, const size_t rows, const size_t colums);
 
@@ -47,7 +43,6 @@ void manualFillingArray(int** array, const size_t rows, const size_t colums);
  * \brief Автоматическое заполнение массива
  * \param rows Количество строк
  * \param colums Количество столбцов
- * \return array Возвращение заполненного массива
  */
 void autoFillingArray(int** array, const size_t rows, const size_t colums);
 
@@ -67,7 +62,7 @@ std::string toString(const size_t rows, const size_t colums, int** array);
  * \param colums Количество столбцов
  * \param array Массив
  */
-void actOne(const size_t rows, const size_t colums, int **array); // !
+void actOne(const size_t rows, const size_t colums, int** array); // !
 
 /**
  * \brief Функция ищет максимальный по модулю элемент каждого столбца
@@ -92,7 +87,7 @@ int* findAbsMinElements(const size_t rows, const size_t colums, int** array);
  * \param rows Количество строк
  * \param arr Удаляемый массив
  */
-void deletingArray(const size_t rows, int **&arr);
+void deletingArray(const size_t rows, int**& arr);
 
 /**
  * \brief Функция выполняет задание 2 (удалить строки содержащие максимальные элементы столбцов)
@@ -100,7 +95,7 @@ void deletingArray(const size_t rows, int **&arr);
  * \param colums Количество столбцов
  * \param array Массив
  */
-void actTwo(const size_t rows, const size_t colums, int **&array);
+void actTwo(const size_t rows, const size_t colums, int**& array);
 
 /**
  * \brief Функция ищет строки для удаления
@@ -139,38 +134,72 @@ int main()
     std::cout << "Введите размерность массива:\n Количество строк: ";
     int checkRows;
     std::cin >> checkRows;
+
+    try
+    {
+        getSize(checkRows);
+    }
+    catch (std::out_of_range)
+    {
+        std::cout << "Вы ввели неправильный ответ!\n";
+        return 1;
+    }
+    
+    const size_t rows = getSize(checkRows);
     
     std::cout << " Количество столбцов: ";
     int checkColums;
     std::cin >> checkColums;
     
-    if (!ceckingInput(checkRows, checkColums))
+    try
     {
-        throw std::range_error("Некорректный размер!");
+        getSize(checkColums);
+    }
+    catch (std::out_of_range)
+    {
+        std::cout << "Вы ввели неправильный ответ!\n";
+        return 1;
     }
     
-    const size_t rows = checkRows;
-    const size_t colums = checkColums;
+    const size_t colums = getSize(checkColums);
     
-    std::cout << "Выберите способ заполнения массива:\n 1-Ручное\n 2-Автоматическое\n ";
+    std::cout << "Выберите способ заполнения массива:\n "
+    << static_cast<int>(answer::yes) << " - Ручное\n "
+    << static_cast<int>(answer::no) << " - Автоматическое\n ";
+    
     int ans;
     std::cin >> ans;
         
-    answer castedAns = static_cast<answer>(ans);
-    
     int** array = creatingArray(rows, colums);
-        
-    if (castedAns == answer::yes)
+
+    try
     {
-        manualFillingArray(array, rows, colums);
+        const auto chosen = static_cast<answer>(ans);
+
+        switch (chosen)
+        {
+            case answer::no:
+            {
+                autoFillingArray(array, rows, colums);
+                break;
+            }
+            case answer::yes:
+            {
+                manualFillingArray(array, rows, colums);
+                break;
+            }
+            default :
+                std::cout << "Вы ввели неправильный ответ!\n";
+                return 1;
+        }
     }
-    else if (castedAns == answer::no)
+    catch (std::out_of_range&)
     {
-        autoFillingArray(array, rows, colums);
+        std::cout << "Вы ввели неправильный ответ!\n";
+        return 1;
     }
-    else throw std::range_error("Выбор некорректен!");
-    
-    std::cout << "Массив:\n" << toString(rows, colums, array) << std::endl;
+
+    std::cout << "Массив:\n" << toString(rows, colums, array) << "\n";
     
     actOne(rows, colums, array);
     std::cout << "Массив по итогу первого задания:\n" << toString(rows, colums, array) << std::endl;
@@ -188,9 +217,14 @@ int main()
     return 0;
 }
 
-bool ceckingInput(const int rows, const int colums)
+size_t getSize(const int size)
 {
-    return rows > 0 && colums > 0;
+    if (size < 0)
+    {
+        throw std::out_of_range("Некорректный размер. Значение меньше либо равно 0.");
+    }
+    
+    return size;
 }
 
 int** creatingArray(const size_t rows, const size_t colums)
@@ -249,7 +283,7 @@ std::string toString(const size_t rows, const size_t colums, int** array)
         return deletedArray;
 }
 
-void actOne(const size_t rows, const size_t colums, int **array)
+void actOne(const size_t rows, const size_t colums, int** array)
 {
     int* max = findAbsMaxElements(rows, colums, array);
     int* min = findAbsMinElements(rows, colums, array);
@@ -315,7 +349,7 @@ int* findAbsMinElements(const size_t rows, const size_t colums, int** array)
     return min;
 }
 
-void deletingArray(const size_t rows, int **&arr)
+void deletingArray(const size_t rows, int**& arr)
 {
     for (size_t index = 0; index < rows; index++)
     {
@@ -330,7 +364,7 @@ void deletingArray(const size_t rows, int **&arr)
     arr = nullptr;
 }
 
-void actTwo(const size_t rows, const size_t colums, int **&array)
+void actTwo(const size_t rows, const size_t colums, int**& array)
 {
     bool* rowsToDell = findRowsToDell(rows, colums, array);
     size_t numOfDelletedRows = findNumOfDelletedRows(rows, colums, array);
